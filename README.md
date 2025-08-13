@@ -1,2 +1,55 @@
-# ASL-Recognition-WebUI
-This code can classify ASL(American Sign Language) by using Jetson Inference Lib and You can also use its webUI
+# 🧠 ASL (American Sign Language) Classification on NVIDIA Jetson Orin Nano
+
+## 📌 Overview
+This project is a Python-based application designed to run on the **NVIDIA Jetson Orin Nano Developer Kit**. It performs real-time classification of American Sign Language (ASL) gestures using a camera feed or static image input. The system leverages **deep learning inference** powered by NVIDIA's optimized libraries: `jetson-inference` and `jetson-utils`.
+
+---
+
+## 🚀 Getting Started
+
+### 🧩 Requirements
+
+Ensure the following components are available and properly configured:
+
+- **Hardware**: NVIDIA Jetson Orin Nano Developer Kit
+- **Software Stack**:
+  - [JetPack SDK](https://developer.nvidia.com/embedded/jetpack) (includes CUDA, cuDNN, TensorRT)
+  - `jetson-inference` and `jetson-utils` libraries
+  - Python 3
+  - OpenCV (`cv2`)
+- **Model Files**:
+  - Pre-trained ONNX model (e.g., `resnet18-ASL.onnx`)
+  - Label file (`labels.txt`) — one class per line, matching the model's output order
+
+---
+
+### ⚙️ Installation Steps
+
+Follow these steps to set up the environment and build the required libraries:
+
+1.  Clone the `jetson-inference` repository go to cloned directory
+```bash
+git clone --recursive [https://github.com/dusty-nv/jetson-inference](https://github.com/dusty-nv/jetson-inference)
+cd jetson-inference
+```
+
+2. Make and go to "build" directory then Configure the Project with CMake.
+```bash
+mkdir build
+cd build
+
+cmake ../
+```
+
+3. Run make to build and install the project.
+```bash
+make -j$(nproc) # use -j$(nproc) to build fast
+sudo make install
+```
+And Jetson-Inferences setup is done.<br>
+### OpenCV
+4. Make sure the OpenCV installed on your device before run.
+```bash
+pip install opencv-python
+```
+
