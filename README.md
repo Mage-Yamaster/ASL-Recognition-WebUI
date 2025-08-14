@@ -61,3 +61,13 @@ And link will appear in console.
 ```bash
  * Running on http://127.0.0.1:4040
 ```
+Or you can run it in no WebUI
+```bash
+python3 ASL-recognition.py
+```
+Arguments
+```bash
+--filename : filepath of the input image to classify (default: capture from camera)
+--output : filename of the output image to save the classification result (default: output.jpg)
+```
+If you want to use camera in this, connect it to running device.(ex. orin nano)
