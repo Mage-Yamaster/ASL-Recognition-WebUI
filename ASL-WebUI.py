@@ -3,6 +3,7 @@ import os
 import tempfile
 import logging
 import ASLR_func as ASLR
+from PIL import Image
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +26,10 @@ def submit():
     with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp:
         file.save(tmp.name)
         tmp_path = tmp.name
+
+    img = Image.open(tmp_path)
+    img = img.transpose(Image.FLIP_LEFT_RIGHT)
+    img.save(tmp_path)
 
     if no_output:
         os.remove(tmp_path)
