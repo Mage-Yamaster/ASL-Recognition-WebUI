@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASL Classification WebUI</title>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --primary-hover: #357ABD;
+            --background-color: #F4F7F9;
+            --card-background: #FFFFFF;
+            --text-color: #333333;
+            --light-text-color: #666666;
+            --border-color: #E0E0E0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .main-container {
+            background: var(--card-background);
+            box-shadow: 0 8px 30px var(--shadow-color);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 95%;
+            margin: 20px;
+            overflow: hidden;
+        }
+        header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--primary-hover);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+        .button-primary, .button-secondary {
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .button-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        .button-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .button-primary:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+            transform: none;
+        }
+        .button-secondary {
+            background-color: #e9ecef;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        .button-secondary:hover {
+            background-color: #dee2e6;
+            transform: translateY(-2px);
+        }
+        .container {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+        video {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            min-height: 240px;
+            background: #2c3e50;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: scaleX(-1);
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+        }
+        #submitFrame.active {
+            background: #28a745;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        #captureFrame.capturing {
+            background: #dc3545;
+            color: white;
+        }
+        #outputResult {
+            margin-top: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+        #resultImage {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid var(--border-color);
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--light-text-color);
+            text-align: center;
+        }
+        #menuPanel {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 260px;
+            height: 100%;
+            background: #FFFFFF;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+            transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 200;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+        #menuPanel.active {
+            left: 0;
+        }
+        #menuPanel h2 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+        #menuPanel a {
+            display: block;
+            padding: 12px 0;
+            text-decoration: none;
+            color: var(--light-text-color);
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+        #menuPanel a:hover {
+            color: var(--primary-color);
+        }
+        .burger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 28px;
+            height: 24px;
+            cursor: pointer;
+            z-index: 201;
+        }
+        .burger div {
+            width: 100%;
+            height: 3px;
+            background-color: #fff;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .burger.change .bar1 {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+        .burger.change .bar2 {
+            opacity: 0;
+        }
+        .burger.change .bar3 {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+        #settingsModal {
+            position: fixed;
+            top: 0;
+            right: -340px;
+            width: 320px;
+            height: 100%;
+            background: var(--card-background);
+            box-shadow: -2px 0 15px var(--shadow-color);
+            z-index: 200;
+            padding: 32px 24px;
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-sizing: border-box;
+        }
+        #settingsModal.active {
+            right: 0;
+        }
+        #settingsModal h2 {
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+        .setting-item input[type="checkbox"] {
+            transform: scale(1.4);
+            accent-color: var(--primary-color);
+        }
+        .overlay-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+            display: none;
+        }
+        .overlay-bg.active {
+            display: block;
+        }
+        .camera-select-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #cameraSelect {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            background-color: #fff;
+            cursor: pointer;
+            width: 100%;
+            max-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay-bg" id="overlayBg"></div>
+    <div class="main-container">
+        <header>
+            <div class="header-left">
+                <div class="burger" id="burgerBtn">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </div>
+                <span class="header-title">🤚 ASL Classification</span>
+            </div>
+            <button class="button-primary" id="settingsBtn">Settings</button>
+        </header>
+        <nav id="menuPanel">
+            <h2>Description</h2>
+            <a href="https://github.com/Mage-Yamaster/ASL-Recognition-WebUI">GitHub</a>
+            <a href="https://www.kaggle.com/datasets/lexset/synthetic-asl-alphabet">DataSet</a>
+            <div style="margin-top: 24px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                <p style="font-size: 0.9rem; color: var(--light-text-color);">
+                    This web UI is designed for American Sign Language (ASL) gesture recognition. Capture a frame and
+                    submit it for classification.
+                </p>
+            </div>
+        </nav>
+        <div id="capturedFrameContainer" style="display:none; text-align:center; margin-bottom:20px;">
+            <canvas id="capturedFrameCanvas" style="max-width:100%; border-radius:12px; border:1px solid var(--border-color); transform: scaleX(-1);"></canvas>
+        </div>
+        <div class="container">
+            <video id="webcam" autoplay playsinline></video>
+
+            <div class="controls">
+                <button id="startStopWebcam" class="button-primary">Start Webcam</button>
+                <div class="camera-select-container">
+                    <label for="cameraSelect">Select Camera:</label>
+                    <select id="cameraSelect" disabled></select>
+                </div>
+            </div>
+            <div class="controls">
+                <button id="captureFrame" class="button-secondary" disabled>Capture</button>
+                <button id="submitFrame" class="button-primary" disabled>Submit</button>
+            </div>
+            <div id="outputResult" style="display:none;">
+                <h3>Classification Result</h3>
+                <img id="resultImage" alt="Classified Hand Gesture" />
+            </div>
+            <div class="footer">
+                <p>© 2025 ASL Classification Project</p>
+                <p>Developed by Anonymous(not hacker)</p>
+            </div>
+        </div>
+    </div>
+    <aside id="settingsModal">
+        <h2>Settings</h2>
+        <div class="setting-item">
+            <span>Overlay</span>
+            <input type="checkbox" id="overlaySetting" checked>
+        </div>
+        <div class="setting-item">
+            <span>No Output</span>
+            <input type="checkbox" id="noOutputSetting">
+        </div>
+        <button class="button-primary" id="closeSettingsBtn">Close</button>
+    </aside>
+<script>
+const el = {
+    webcam: document.getElementById('webcam'),
+    startStopBtn: document.getElementById('startStopWebcam'),
+    cameraSelect: document.getElementById('cameraSelect'),
+    captureBtn: document.getElementById('captureFrame'),
+    submitBtn: document.getElementById('submitFrame'),
+    outputResult: document.getElementById('outputResult'),
+    resultImage: document.getElementById('resultImage'),
+    overlaySetting: document.getElementById('overlaySetting'),
+    noOutputSetting: document.getElementById('noOutputSetting'),
+    canvas: document.createElement('canvas'),
+    burgerBtn: document.getElementById('burgerBtn'),
+    menuPanel: document.getElementById('menuPanel'),
+    settingsBtn: document.getElementById('settingsBtn'),
+    settingsModal: document.getElementById('settingsModal'),
+    closeSettingsBtn: document.getElementById('closeSettingsBtn'),
+    overlayBg: document.getElementById('overlayBg')
+};
+
+let stream = null;
+let capturedImage = null;
+let videoDevices = [];
+
+async function listCameras() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        videoDevices = devices.filter(d => d.kind === 'videoinput');
+        el.cameraSelect.innerHTML = videoDevices
+            .map((device, idx) => `<option value="${device.deviceId}">${device.label || `Camera ${idx + 1}`}</option>`)
+            .join('');
+        el.cameraSelect.disabled = videoDevices.length <= 1;
+    } catch (err) {
+        console.error("Error listing cameras:", err);
+    }
+}
+
+// Get the new canvas elements from the DOM
+const capturedFrameContainer = document.getElementById('capturedFrameContainer');
+const capturedFrameCanvas = document.getElementById('capturedFrameCanvas');
+
+async function startWebcam(deviceId) {
+    try {
+        if (stream) {
+            stopWebcam();
+        }
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: deviceId ? { deviceId: { exact: deviceId } } : true
+        });
+        el.webcam.srcObject = stream;
+        el.startStopBtn.textContent = "Stop Webcam";
+        el.captureBtn.disabled = false;
+        el.submitBtn.disabled = true; // Ensure Submit is disabled on start
+    } catch (err) {
+        console.error("Error accessing webcam:", err);
+        alert("Could not start webcam. Please check permissions.");
+    }
+}
+
+function stopWebcam() {
+    if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+    }
+    el.webcam.srcObject = null;
+    el.webcam.style.display = 'block'; // Ensure video element is visible
+    capturedFrameContainer.style.display = 'none'; // Hide canvas
+
+    // Reset button states and text
+    el.startStopBtn.textContent = "Start Webcam";
+    el.captureBtn.textContent = 'Capture';
+    el.captureBtn.classList.remove('capturing');
+    el.captureBtn.disabled = true;
+    el.submitBtn.disabled = true;
+    capturedImage = null;
+}
+
+function toggleCaptureAndRelease() {
+    const isVideoPaused = el.webcam.paused;
+
+    if (!isVideoPaused) {
+        // --- CAPTURE LOGIC ---
+        el.webcam.pause();
+
+        // Prepare the canvas for submission (un-mirrored)
+        const submitCtx = el.canvas.getContext('2d');
+        el.canvas.width = el.webcam.videoWidth;
+        el.canvas.height = el.webcam.videoHeight;
+        submitCtx.drawImage(el.webcam, 0, 0, el.canvas.width, el.canvas.height);
+        capturedImage = el.canvas;
+
+        // Prepare the visible canvas to show the user (mirrored)
+        const displayCtx = capturedFrameCanvas.getContext('2d');
+        capturedFrameCanvas.width = el.webcam.videoWidth;
+        capturedFrameCanvas.height = el.webcam.videoHeight;
+        displayCtx.drawImage(el.webcam, 0, 0, capturedFrameCanvas.width, capturedFrameCanvas.height);
+        
+        // Swap visibility
+        el.webcam.style.display = 'none';
+        capturedFrameContainer.style.display = 'block';
+        
+        // Update buttons
+        el.captureBtn.textContent = 'Release';
+        el.captureBtn.classList.add('capturing'); // This class makes it red
+        el.submitBtn.disabled = false;
+
+    } else {
+        // --- RELEASE LOGIC ---
+        el.webcam.play();
+
+        // Swap visibility
+        capturedFrameContainer.style.display = 'none';
+        el.webcam.style.display = 'block';
+
+        // Update buttons
+        el.captureBtn.textContent = 'Capture';
+        el.captureBtn.classList.remove('capturing');
+        el.submitBtn.disabled = true;
+        capturedImage = null;
+    }
+}
+
+// --- REPLACE THE OLD EVENT LISTENERS WITH THESE ---
+el.startStopBtn.addEventListener('click', () => {
+    // Check if the stream is active by looking at the button text
+    if (el.startStopBtn.textContent.includes("Stop")) {
+        stopWebcam();
+    } else {
+        startWebcam(el.cameraSelect.value);
+    }
+});
+
+el.cameraSelect.addEventListener('change', () => {
+    if (stream) startWebcam(el.cameraSelect.value);
+});
+
+el.captureBtn.addEventListener('click', toggleCaptureAndRelease); // Replaced listener
+el.submitBtn.addEventListener('click', submitFrame);
+el.burgerBtn.addEventListener('click', toggleMenu);
+el.settingsBtn.addEventListener('click', toggleSettings);
+el.closeSettingsBtn.addEventListener('click', toggleSettings);
+el.overlayBg.addEventListener('click', closeAllModals);W
+
+async function submitFrame() {
+    if (!capturedImage) return;
+    el.submitBtn.textContent = "Processing...";
+    el.submitBtn.disabled = true;
+    capturedImage.toBlob(async blob => {
+        const formData = new FormData();
+        formData.append('frame', blob, 'frame.jpg');
+        formData.append('overlay', el.overlaySetting.checked ? '1' : '0');
+        formData.append('noOutput', el.noOutputSetting.checked ? '1' : '0');
+        try {
+            const res = await fetch('/submit', { method: 'POST', body: formData });
+            const contentType = res.headers.get('Content-Type');
+            if (res.ok && contentType && contentType.startsWith('image/')) {
+                const imageBlob = await res.blob();
+                el.resultImage.src = URL.createObjectURL(imageBlob);
+                el.outputResult.style.display = 'block';
+            } else {
+                const msg = await res.text();
+                alert(`Server says: ${msg}`);
+                el.outputResult.style.display = 'none';
+            }
+        } catch (error) {
+            console.error("Submit failed:", error);
+            alert('Failed to submit frame.');
+        } finally {
+            el.submitBtn.textContent = "Submit";
+            el.submitBtn.disabled = false;
+        }
+    }, 'image/jpeg');
+}
+
+function toggleMenu() {
+    el.menuPanel.classList.toggle('active');
+    el.burgerBtn.classList.toggle('change');
+    el.overlayBg.classList.toggle('active');
+}
+
+function toggleSettings() {
+    el.settingsModal.classList.toggle('active');
+    el.overlayBg.classList.toggle('active');
+}
+
+function closeAllModals() {
+    el.menuPanel.classList.remove('active');
+    el.burgerBtn.classList.remove('change');
+    el.settingsModal.classList.remove('active');
+    el.overlayBg.classList.remove('active');
+}
+
+el.startStopBtn.addEventListener('click', () => {
+    stream ? stopWebcam() : startWebcam(el.cameraSelect.value);
+});
+el.cameraSelect.addEventListener('change', () => {
+    if (stream) startWebcam(el.cameraSelect.value);
+});
+el.captureBtn.addEventListener('click', captureFrame);
+el.submitBtn.addEventListener('click', submitFrame);
+el.burgerBtn.addEventListener('click', toggleMenu);
+el.settingsBtn.addEventListener('click', toggleSettings);
+el.closeSettingsBtn.addEventListener('click', toggleSettings);
+el.overlayBg.addEventListener('click', closeAllModals);
+
+listCameras();
+</script>
+</body>
+</html>
