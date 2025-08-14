@@ -1,8 +1,11 @@
 # 🧠 ASL (American Sign Language) Classification on NVIDIA Jetson Orin Nano
 
-## 📌 Overview
+## 📌 Overview and Logic
 This project is a Python-based application designed to run on the **NVIDIA Jetson Orin Nano Developer Kit**. It performs real-time classification of American Sign Language (ASL) gestures using a camera feed or static image input. The system leverages **deep learning inference** powered by NVIDIA's optimized libraries: `jetson-inference` and `jetson-utils`.
 
+This project has two main part.
+1. **ASL-WebUI.py** is a Backend of website and it release image-file from website and give it to AI.
+2. **ASLR_func.py** is a function of ASL Recognition AI. It used for classification of ASL in **ASL-WebUI.py**
 ---
 
 ## 🚀 Getting Started
