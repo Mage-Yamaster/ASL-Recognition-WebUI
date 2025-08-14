@@ -11,7 +11,7 @@ This project is a Python-based application designed to run on the **NVIDIA Jetso
 
 Ensure the following components are available and properly configured:
 
-- **Hardware**: NVIDIA Jetson Orin Nano Developer Kit
+- **Hardware**: NVIDIA Jetson or NVIDIA GPUs
 - **Software Stack**:
   - [JetPack SDK](https://developer.nvidia.com/embedded/jetpack) (includes CUDA, cuDNN, TensorRT)
   - `jetson-inference` and `jetson-utils` libraries
@@ -52,4 +52,12 @@ And Jetson-Inferences setup is done.<br>
 ```bash
 pip install opencv-python
 ```
-
+5. Start it!
+```bash
+cd path/to/ASL-Recognition-WebUI
+python3 ASL-WebUI.py
+```
+And link will appear in console.
+```bash
+ * Running on http://127.0.0.1:4040
+```
