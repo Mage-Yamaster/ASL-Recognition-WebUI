@@ -7,8 +7,9 @@ This project has two main part.
 1. **ASL-WebUI.py** is a Backend of website and it release image-file from website and give it to AI.
 2. **ASLR_func.py** is a function of ASL Recognition AI. It used for classification of ASL in **ASL-WebUI.py**
 
-### Using Model
+**Using Model**<br>
 This project is using Fine-tuned **googlenet** model.
+
 ---
 
 ## 🚀 Getting Started
